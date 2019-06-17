@@ -20,7 +20,7 @@ const char * const fragmentShaderSource[]{
 
     "void main()\n"
     "{\n"
-    "   FragColor= vec4(1.0f,0.0f, 0.3f, 0.7f);\n"
+    "   FragColor= vec4(1.0f,0.0f, 0.3f, 1.0f);\n"
     "}\n"
 };
 
