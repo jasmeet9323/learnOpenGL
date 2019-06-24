@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <math.h>
 
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -17,10 +18,11 @@ const char * const verteShaderSource[]{
 const char * const fragmentShaderSource[]{
     "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "uniform vec4 ourColor;\n"
 
     "void main()\n"
     "{\n"
-    "   FragColor= vec4(1.0f,0.0f, 0.3f, 1.0f);\n"
+    "   FragColor= ourColor;\n"
     "}\n"
 };
 
@@ -152,6 +154,14 @@ int main(){
 
     // draw our first triangle
     glUseProgram(shaderProgram);
+
+    // update the uniform color
+    float timeValue = glfwGetTime();
+    float greenValue = sin(timeValue) / 2.0f + 0.5f;
+    int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+    // now render the triangle
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
     glDrawArrays(GL_TRIANGLES, 0, 3);
     // glBindVertexArray(0); // no need to unbind it every time
