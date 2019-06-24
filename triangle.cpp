@@ -44,9 +44,9 @@ int main(){
   //-------------------------------------------------------------------
   float vertices[] = {
     // position         // colors
-    0.5f, 0.5f, 0.0f, 0.5f, 0.0f, 0.0f, // bottom right
-    -0.5f, 0.5f, 0.0f, 0.0f, 0.5f, 0.0f,  // bottom left
-    0.0f,  -0.5f, 0.0f, 0.0f, 0.0f, 0.5f   // top
+    -0.5f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, // bottom right
+    0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f,  // bottom left
+    0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 0.5f   // top
   };
 
   unsigned int VBO, VAO;
