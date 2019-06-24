@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 project(learnOpenGL)
 
-add_executable(triangle triangle.cpp glad.c)
+add_executable(triangle triangle.cpp glad.c shader.cpp)
 add_executable(rectangle rectangle.cpp glad.c)
 
 SET(OpenGL_GL_PREFERENCE "LEGACY")
