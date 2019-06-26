@@ -1,0 +1,9 @@
+cmake_install.cmake
+rectangle
+triangle
+CMakeCache.txt
+CMakeFiles/
+
+build/
+CMakeLists.txt.user
+Makefile
