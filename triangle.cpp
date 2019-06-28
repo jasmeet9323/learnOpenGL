@@ -10,6 +10,13 @@
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+// settings
+const unsigned int SCREEN_WIDTH = 800;
+const unsigned int SCREEN_HEIGHT = 600;
+
+// stores how much we're seeing of either texture
+float mixValue = 0.2f;
+
 int main(){
 
   //Initialize the parameters
@@ -22,7 +29,7 @@ int main(){
 
   //Create window 
   // ------------
-  GLFWwindow* window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+  GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "LearnOpenGL", NULL, NULL);
   if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -49,7 +56,7 @@ int main(){
      0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
      0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
   };
 
   unsigned int indices[] = {
@@ -109,8 +116,8 @@ int main(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   // set texture filtering parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Read Texture image
   stbi_set_flip_vertically_on_load(true);
@@ -141,8 +148,8 @@ int main(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   // set texture filtering parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Read texture2 image
   data = stbi_load("awesomeface.png",&width, &height, &nrChannels, 0);
@@ -181,6 +188,9 @@ int main(){
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
+    // set the texture mix value in the shader
+    ourShader.setFloat("mixValue", mixValue);
+
     // now render container & face
     ourShader.use();
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
@@ -211,6 +221,19 @@ void processInput(GLFWwindow *window)
 {
   if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(window, true);
+  if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+  {
+     mixValue+=0.005f;
+     if(mixValue >= 1.0f)
+       mixValue = 1.0f;
+  }
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+  {
+      mixValue -= 0.005f; // change this value accordingly (might be too slow or too fast based on system hardware)
+      if (mixValue <= 0.0f)
+          mixValue = 0.0f;
+  }
+
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
