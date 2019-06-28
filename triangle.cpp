@@ -42,9 +42,6 @@ int main(){
   // declare shader, read from file, compile and link
   Shader ourShader("shader-vertex.glsl", "shader-fragment.glsl");
 
-  float offset = 0.5f;
-  ourShader.setFloat("offset", offset);
-
   // set up vertex data (and buffer(s)) and configure vertex attributes
   //-------------------------------------------------------------------
   float vertices[] = {
@@ -98,12 +95,15 @@ int main(){
   // uncomment this call to draw in wireframe polygons.
   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  // Initialize/Create texture
-  unsigned int texture;
-  glGenTextures(1, &texture);
+  // Load and dreate texture
+  unsigned int texture1, texture2;
+
+  // Texture 1 ---------------
+  glGenTextures(1, &texture1);
 
   // Bind texture
-  glBindTexture(GL_TEXTURE_2D, texture);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, texture1);
 
   // set the texture wrapping parameters
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -113,6 +113,7 @@ int main(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
 
   // Read Texture image
+  stbi_set_flip_vertically_on_load(true);
   int width, height, nrChannels;
   unsigned char *data = stbi_load("container.jpg", &width, &height,
     &nrChannels, 0);
@@ -127,9 +128,40 @@ int main(){
   {
     std::cout << "Failed to load texture" << std::endl;
   }
-  
   stbi_image_free(data);
 
+  // Texture 2 ------------------
+  glGenTextures(1, &texture2);
+
+  // Bind texture
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+
+  // set the texture wrapping parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  // set texture filtering parameters
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_REPEAT);
+
+  // Read texture2 image
+  data = stbi_load("awesomeface.png",&width, &height, &nrChannels, 0);
+  if(data){
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+  } else {
+   std::cout << "Failed to load texture" << std::endl;
+  }
+
+  stbi_image_free(data);
+
+  // tell opengl for each sampler to which texture unit
+  // it belongs to (only has to be done once)
+  // --------------------------------------------------
+  ourShader.use();
+  ourShader.setInt("texture1", 0);
+  ourShader.setInt("texture2", 1);
 
   while(!glfwWindowShouldClose(window))
   {
@@ -142,10 +174,14 @@ int main(){
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // draw our first triangle
-    glBindTexture(GL_TEXTURE_2D, texture);
+    // bind textures on corresponding texture units
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
 
-   // now render the triangle
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    // now render container & face
     ourShader.use();
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -158,6 +194,7 @@ int main(){
   }
 
   // optional: de-allocate all resources once they've outlived their purpose:
+  //-------------------------------------------------------------------------
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
   glDeleteBuffers(1, &EBO);
