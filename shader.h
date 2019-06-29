@@ -24,5 +24,7 @@ public:
   void setInt(const std::string &name, int value) const;
   void setFloat(const std::string &name, float value) const;
   unsigned int getID() const;
+  void setMatrix(const std::string &name, int n, bool isTransposed,
+                 float* value) const;
 };
 #endif

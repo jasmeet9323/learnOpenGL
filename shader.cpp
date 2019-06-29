@@ -99,3 +99,9 @@ void Shader::setFloat(const std::string &name, float value) const
 {
   glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
+
+void Shader::setMatrix(const std::string &name, int n, bool isTransposed, float* value) const
+{
+  unsigned int location = glGetUniformLocation(ID, name.c_str());
+  glUniformMatrix4fv(location, n, isTransposed, value);
+}
