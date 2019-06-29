@@ -173,14 +173,7 @@ int main(){
   ourShader.setInt("texture1", 0);
   ourShader.setInt("texture2", 1);
 
-  // Rotate and Scale the display of points
-  glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-  glm::mat4 trans = glm::mat4(1.0f);
-  //trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-  trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-  trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-  vec = trans * vec;
-  ourShader.setMatrix("transform", 1, (bool) GL_FALSE, glm::value_ptr(trans));
+
 
   while(!glfwWindowShouldClose(window))
   {
@@ -203,10 +196,29 @@ int main(){
     // set the texture mix value in the shader
     ourShader.setFloat("mixValue", mixValue);
 
-    // now render container & face
-    ourShader.use();
+    // first container
+    // ---------------
+    // Scale, translate and rotate. the display of points
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+    trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
+    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+    vec = trans * vec;
+    ourShader.setMatrix("transform", 1, (bool) GL_FALSE, glm::value_ptr(trans));
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    // second container
+    // ----------------
+    trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+    float scaleAmount = sin(glfwGetTime());
+    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+    ourShader.setMatrix("transform", 1, (bool)GL_FALSE, glm::value_ptr(trans));
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
     // glBindVertexArray(0); // no need to unbind it every time
 
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
