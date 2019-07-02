@@ -196,26 +196,49 @@ int main(){
     // set the texture mix value in the shader
     ourShader.setFloat("mixValue", mixValue);
 
-    // first container
-    // ---------------
-    // Scale, translate and rotate. the display of points
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-    trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
-    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-    vec = trans * vec;
-    ourShader.setMatrix("transform", 1, (bool) GL_FALSE, glm::value_ptr(trans));
-    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+//    // first container
+//    // ---------------
+//    // Scale, translate and rotate. the display of points
+//    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+//    glm::mat4 trans = glm::mat4(1.0f);
+//    trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+//    trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
+//    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+//    vec = trans * vec;
+//    ourShader.setMatrix("transform", 1, (bool) GL_FALSE, glm::value_ptr(trans));
+//    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-    // second container
-    // ----------------
-    trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-    float scaleAmount = sin(glfwGetTime());
-    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-    ourShader.setMatrix("transform", 1, (bool)GL_FALSE, glm::value_ptr(trans));
+//    // second container
+//    // ----------------
+//    trans = glm::mat4(1.0f);
+//    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+//    float scaleAmount = sin(glfwGetTime());
+//    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
+//    ourShader.setMatrix("transform", 1, (bool)GL_FALSE, glm::value_ptr(trans));
+
+    // Coordinate system: 3D view
+
+    // Model matrix
+    // ------------
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    // View matrix
+    // -----------
+    glm::mat4 view = glm::mat4(1.0f);
+    // translate the scene in the reverse direction of
+    // where we want to move
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    // Projection matrix
+    // -----------------
+    glm::mat4 projection(1.0f);
+    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f , 0.1f, 100.0f);
+    ourShader.setMatrix("model", 1, 0, glm::value_ptr(model));
+    ourShader.setMatrix("view", 1, 0, glm::value_ptr(view));
+    ourShader.setMatrix("projection", 1, 0, glm::value_ptr(projection));
+
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
