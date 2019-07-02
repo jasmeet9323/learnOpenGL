@@ -3,6 +3,7 @@
 
 // include glad to get all the required OpenGL headers
 #include <glad/glad.h>
+#include "glm/glm.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -26,5 +27,6 @@ public:
   unsigned int getID() const;
   void setMatrix(const std::string &name, int n, bool isTransposed,
                  float* value) const;
+//  void setMat4(const std::string &name, const glm::mat4 &mat) const;
 };
 #endif

@@ -105,3 +105,8 @@ void Shader::setMatrix(const std::string &name, int n, bool isTransposed, float*
   unsigned int location = glGetUniformLocation(ID, name.c_str());
   glUniformMatrix4fv(location, n, isTransposed, value);
 }
+
+//void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+//  glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE,
+//                     &mat[0][0]);
+//}
