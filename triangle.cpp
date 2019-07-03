@@ -121,16 +121,17 @@ int main(){
   // set vertex attribute values
   //----------------------------
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof (float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-//  // color attribute
-//  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (float), (void*)(3*sizeof(float)));
-//  glEnableVertexAttribArray(1);
+  //  // color attribute
+  //  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (float),
+  //  (void*)(3*sizeof(float))); glEnableVertexAttribArray(1);
 
-    // texture attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(2);
+  // texture attribute
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   // unbind -note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
   glBindBuffer(GL_ARRAY_BUFFER,0);
@@ -155,7 +156,7 @@ int main(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   // set texture filtering parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Read Texture image
@@ -187,7 +188,7 @@ int main(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
   // set texture filtering parameters
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // Read texture2 image
@@ -230,6 +231,7 @@ int main(){
     glBindTexture(GL_TEXTURE_2D, texture2);
 
     // set the texture mix value in the shader
+    ourShader.use();
     ourShader.setFloat("mixValue", mixValue);
 
 //    // first container
@@ -271,8 +273,15 @@ int main(){
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f , 0.1f, 100.0f);
 
     ourShader.setMatrix("model", 1, 0, glm::value_ptr(model));
-    ourShader.setMatrix("view", 1, 0, glm::value_ptr(view));
-    ourShader.setMatrix("projection", 1, 0, glm::value_ptr(projection));
+//    ourShader.setMatrix("view", 1, 0, glm::value_ptr(view));
+//    ourShader.setMatrix("projection", 1, 0, glm::value_ptr(projection));
+
+    //unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+    unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+    unsigned int projectLoc = glGetUniformLocation(ourShader.ID, "projection");
+
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+    glUniformMatrix4fv(projectLoc, 1, GL_FALSE, &projection[0][0]);
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
