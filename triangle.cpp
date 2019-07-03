@@ -98,15 +98,9 @@ int main(){
       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
   };
 
-  unsigned int indices[] = {
-      0, 1, 3, // first triangle
-      1, 2, 3  // second triangle
-  };
-
-  unsigned int VBO, VAO, EBO;
+  unsigned int VBO, VAO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &EBO);
 
   // Bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes
   glBindVertexArray(VAO);
@@ -114,21 +108,14 @@ int main(){
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof (vertices), vertices, GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
-
   // set vertex attribute values
   //----------------------------
   // position attribute
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
-  //  // color attribute
-  //  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof (float),
-  //  (void*)(3*sizeof(float))); glEnableVertexAttribArray(1);
-
   // texture attribute
+  // imp: set the attribute to the correct 'location', which is the first argument
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
@@ -234,33 +221,12 @@ int main(){
     ourShader.use();
     ourShader.setFloat("mixValue", mixValue);
 
-//    // first container
-//    // ---------------
-//    // Scale, translate and rotate. the display of points
-//    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-//    glm::mat4 trans = glm::mat4(1.0f);
-//    trans = glm::rotate(trans, (float) glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-//    trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.0f));
-//    trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
-//    vec = trans * vec;
-//    ourShader.setMatrix("transform", 1, (bool) GL_FALSE, glm::value_ptr(trans));
-//    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-//    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-//    // second container
-//    // ----------------
-//    trans = glm::mat4(1.0f);
-//    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-//    float scaleAmount = sin(glfwGetTime());
-//    trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-//    ourShader.setMatrix("transform", 1, (bool)GL_FALSE, glm::value_ptr(trans));
-
     // Coordinate system: 3D view
 
     // Model matrix
     // ------------
     glm::mat4 model(1.0f);
-    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
     // View matrix
     // -----------
@@ -272,16 +238,11 @@ int main(){
     glm::mat4 projection(1.0f);
     projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f , 0.1f, 100.0f);
 
+    // Set the matrices in the shader
+    // -----------------------------
     ourShader.setMatrix("model", 1, 0, glm::value_ptr(model));
-//    ourShader.setMatrix("view", 1, 0, glm::value_ptr(view));
-//    ourShader.setMatrix("projection", 1, 0, glm::value_ptr(projection));
-
-    //unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-    unsigned int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-    unsigned int projectLoc = glGetUniformLocation(ourShader.ID, "projection");
-
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-    glUniformMatrix4fv(projectLoc, 1, GL_FALSE, &projection[0][0]);
+    ourShader.setMatrix("view", 1, 0, glm::value_ptr(view));
+    ourShader.setMatrix("projection", 1, 0, glm::value_ptr(projection));
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -298,7 +259,6 @@ int main(){
   //-------------------------------------------------------------------------
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
 
   // glfw: terminate, clearing all previously allocated GLFW resources.
   // ------------------------------------------------------------------
