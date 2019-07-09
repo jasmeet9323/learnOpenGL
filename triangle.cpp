@@ -244,8 +244,14 @@ int main(){
 
     // View matrix
     // -----------
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    float radius = 10.0f;
+    float time = (float)glfwGetTime();
+    float camX = radius*sin(time);
+    float camY = radius*cos(time);
+    glm::mat4 view;
+    view = glm::lookAt(glm::vec3(camX, 0.0f, camY),
+                       glm::vec3(0.0f, 0.0f, 0.0f),
+                       glm::vec3(0.0f, 0.3f, 0.0f));
 
     // Projection matrix
     // -----------------
@@ -264,9 +270,9 @@ int main(){
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
       float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-      if (i%2==0) {
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(r, r, r));
-      }
+      //if (i%1==0) {
+        model = glm::rotate(model, time/2.0f , glm::vec3(r, r, r));
+      //}
       ourShader.setMatrix("model", 1, GL_FALSE, glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
