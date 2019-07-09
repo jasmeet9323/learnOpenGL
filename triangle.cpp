@@ -20,6 +20,11 @@ const unsigned int SCREEN_HEIGHT = 600;
 // stores how much we're seeing of either texture
 float mixValue = 0.2f;
 
+// for view matrix
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 int main(){
 
   //Initialize the parameters
@@ -243,15 +248,9 @@ int main(){
     //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
 
     // View matrix
-    // -----------
-    float radius = 10.0f;
-    float time = (float)glfwGetTime();
-    float camX = radius*sin(time);
-    float camY = radius*cos(time);
-    glm::mat4 view;
-    view = glm::lookAt(glm::vec3(camX, 0.0f, camY),
-                       glm::vec3(0.0f, 0.0f, 0.0f),
-                       glm::vec3(0.0f, 0.3f, 0.0f));
+    //------------
+    glm::mat4 view = glm::mat4(1.0f);
+    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
     // Projection matrix
     // -----------------
@@ -271,7 +270,7 @@ int main(){
       float angle = 20.0f * i;
       float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
       //if (i%1==0) {
-        model = glm::rotate(model, time/2.0f , glm::vec3(r, r, r));
+        model = glm::rotate(model, (float)glfwGetTime()/2.0f , glm::vec3(r, r, r));
       //}
       ourShader.setMatrix("model", 1, GL_FALSE, glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -313,7 +312,15 @@ void processInput(GLFWwindow *window)
       if (mixValue <= 0.0f)
           mixValue = 0.0f;
   }
-
+  float cameraSpeed = 0.05f;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    cameraPos += cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    cameraPos -= cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
