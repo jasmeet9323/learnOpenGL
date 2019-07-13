@@ -25,6 +25,10 @@ glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+// deltaTime for constant speed
+float deltaTime = 0.0f; // Time between current frame and last frame
+float lastFrame = 0.0f; // Time of last frame
+
 int main(){
 
   //Initialize the parameters
@@ -281,6 +285,11 @@ int main(){
     // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    // update camera speed according to frame rate
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - lastFrame;
+    lastFrame = currentFrame;
   }
 
   // optional: de-allocate all resources once they've outlived their purpose:
@@ -312,7 +321,7 @@ void processInput(GLFWwindow *window)
       if (mixValue <= 0.0f)
           mixValue = 0.0f;
   }
-  float cameraSpeed = 0.05f;
+  float cameraSpeed = 2.5f * deltaTime;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     cameraPos += cameraSpeed * cameraFront;
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
