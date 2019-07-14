@@ -27,6 +27,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = 800.0f/2.0f;
 float lastY = 600.0f/2.0f;
 bool firstMouse = true;
+float fov = 45.0f;
 
 // stores how much we're seeing of either texture
 float mixValue = 0.2f;
@@ -271,7 +272,8 @@ int main(){
     // Projection matrix
     // -----------------
     glm::mat4 projection(1.0f);
-    projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f , 0.1f, 100.0f);
+    projection = glm::perspective(glm::radians(camera.Zoom), (float) SCREEN_WIDTH/
+                                  (float) SCREEN_HEIGHT, 0.1f, 100.0f);
 
     // Set the matrices in the shader
     // -----------------------------
