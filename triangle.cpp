@@ -10,6 +10,9 @@
 #include "shader.h"
 #include "stb_image.h"
 
+// Camera class
+#include "camera.h"
+
 void processInput(GLFWwindow *window);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -19,25 +22,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
+// Camera object
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = 800.0f/2.0f;
+float lastY = 600.0f/2.0f;
+bool firstMouse = true;
+
 // stores how much we're seeing of either texture
 float mixValue = 0.2f;
-
-// for view matrix
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // deltaTime for constant speed
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
-
-// Mouse movement
-float yaw = -90.0f; // yaw is initialized to -90.0 degrees since a yaw of 0.0 results in a direction vector pointing to the right so we initially rotate a bit to the left.
-float pitch =  0.0f;
-float lastX = 800.0f/2.0f;
-float lastY = 600.0f/2.0f;
-bool firstMouse = true;
-float fov = 45.0f;
 
 int main(){
 
@@ -58,6 +54,7 @@ int main(){
     glfwTerminate();
     return -1;
   }
+
   glfwMakeContextCurrent(window);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
   glfwSetCursorPosCallback(window, mouse_callback);
@@ -269,8 +266,7 @@ int main(){
 
     // View matrix
     //------------
-    glm::mat4 view = glm::mat4(1.0f);
-    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    glm::mat4 view = camera.GetViewMatrix();
 
     // Projection matrix
     // -----------------
@@ -287,7 +283,6 @@ int main(){
     for(unsigned int i = 0; i < 10; i++) {
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
-      float angle = 20.0f * i;
       float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
       //if (i%1==0) {
         model = glm::rotate(model, (float)glfwGetTime()/2.0f , glm::vec3(r, r, r));
@@ -339,13 +334,13 @@ void processInput(GLFWwindow *window)
   }
   float cameraSpeed = 2.5f * deltaTime;
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    cameraPos += cameraSpeed * cameraFront;
+    camera.ProcessKeyboard(FORWARD, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    cameraPos -= cameraSpeed * cameraFront;
+    camera.ProcessKeyboard(BACKWARD, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    camera.ProcessKeyboard(LEFT, deltaTime);
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -369,23 +364,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
   lastX = xpos;
   lastY = ypos;
 
-  float sensitivity = 0.05f;
-  xoffset *= sensitivity;
-  yoffset *= sensitivity;
-
-  yaw += xoffset;
-  pitch += yoffset;
-
-  if(pitch > 89.0f)
-    pitch = 89.0f;
-  if(pitch < -89.0f)
-    pitch = -89.0f;
-
-  glm::vec3 front;
-  front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-  front.y = sin(glm::radians(pitch));
-  front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-  cameraFront = glm::normalize(front);
+  camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 
@@ -393,10 +372,5 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    if (fov >= 1.0f && fov <= 45.0f)
-        fov -= yoffset;
-    if (fov <= 1.0f)
-        fov = 1.0f;
-    if (fov >= 45.0f)
-        fov = 45.0f;
+  camera.ProcessMouseScroll(yoffset);
 }
