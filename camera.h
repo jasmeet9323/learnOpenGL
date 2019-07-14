@@ -4,6 +4,9 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext.hpp>
+#include <glm/gtx/string_cast.hpp>
+#include <iostream>
 
 #include <vector>
 
@@ -61,8 +64,43 @@ public:
     updateCameraVectors();
   }
 
+  glm::mat4 mylookAt(glm::vec3 position, glm::vec3 target, glm::vec3 worldUp) {
+
+    // 1. Position = known
+    // 2. Calculate cmaeraDirection
+    glm::vec3 zaxis = glm::normalize(position - target);
+    // 3. Get positive right axis vector
+    glm::vec3 xaxis = glm::normalize(glm::cross(glm::normalize(worldUp), zaxis));
+    // 4. Calculate camera up vector
+    glm::vec3 yaxis = glm::cross(zaxis, xaxis);
+
+    // Create translation and rotation matrix
+    // In glm, we access elements as mat[col][row] due to column-major
+    // layout
+    glm::mat4 translation = glm::mat4(1.0f);
+    translation[3][0] = -position.x; // Third column, first row
+    translation[3][1] = -position.y;
+    translation[3][2] = -position.z;
+
+    glm::mat4 rotation = glm::mat4(1.0f);
+    rotation[0][0] = xaxis.x; // First column, first row
+    rotation[1][0] = xaxis.y;
+    rotation[2][0] = xaxis.z;
+    rotation[0][1] = yaxis.x; // First column, second row
+    rotation[1][1] = yaxis.y;
+    rotation[2][1] = yaxis.z;
+    rotation[0][2] = zaxis.x; // First column, third row
+    rotation[1][2] = zaxis.y;
+    rotation[2][2] = zaxis.z;
+
+    // Return lookAt matrix as combination of translation and rotation matrix
+    return rotation * translation; // Remember to read from right to left (first
+                                   // translation then rotation)
+  }
+
   glm::mat4 GetViewMatrix() {
-    return glm::lookAt(Position, Position + Front, Up);
+     return mylookAt(Position, Position + Front, Up);
+     //return glm::lookAt(Position, Position + Front, Up);
   }
 
   void ProcessKeyboard(Camera_movement direction, float deltaTime) {
@@ -76,7 +114,7 @@ public:
     if (direction == RIGHT)
       Position += Right * velocity;
 
-    Position.y = 0.0f;
+    Position.y = 0.0f; // Constrain to x-z plane
   }
 
   // Processes input received from a mouse input system. Expects the offset
